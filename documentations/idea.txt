@@ -1,0 +1,54 @@
+Create a Python-based application that will serve as a backend REST API for a mobile voting platform, where users can submit questions in various formats (video, graphics, audio, or text) and vote between two options. The goal is to provide a flexible, scalable system that supports different media formats while allowing users to easily create polls with two options and vote on them. The system must be built with the future possibility of personalizing user experiences through segmentation and dynamic content display.
+
+Application Overview
+The primary purpose of this backend application is to allow users to create and participate in polls with two options. Polls can include questions about any topic, and the options may range from abstract preferences ("Which color dress is better?") to more concrete decisions ("Who will win the election?" or "Go left or right?"). This platform should support rich media submissions (video, images, audio) alongside traditional text questions.
+
+The backend system must handle the following:
+
+User Authentication:
+
+Support for OAuth login (e.g., Google, Facebook, Apple).
+Option to extend to other authentication mechanisms as needed.
+Poll Creation:
+
+Users can create questions in various formats: text, video, audio, or graphics.
+Each question must have exactly two options for voting.
+The backend should support media uploads (videos, images, audio files) and manage metadata such as file size, duration, and format validation.
+Poll Voting:
+
+Users can vote on one of the two options.
+Voting must be tracked, and the system should prevent double voting by authenticated users.
+Real-time Results Display:
+
+Provide real-time updates on poll results as votes come in.
+Results can be displayed as percentages, counts, or other user-friendly formats.
+Polls should have a “closed” state once voting is over, after which results are finalized.
+Question Board:
+
+Display a dynamic feed of active and closed polls, similar to the experience on TikTok.
+Allow users to scroll through different polls (e.g., with video or image content) in an engaging, swipe-based format.
+The board must show both current questions and those with completed results.
+Backend should provide pagination and filtering options (e.g., trending polls, recently closed polls).
+Media Handling:
+
+Backend must process and store video, image, and audio files efficiently.
+Implement file size restrictions and automatic conversion if needed (e.g., compressing video to a standard format).
+Each poll’s media content must be served quickly and reliably, especially on mobile devices.
+Personalization and User Segmentation:
+
+The system should be designed with the potential for future iterations where users are segmented into "bubbles" based on their voting patterns, interests, or demographic data.
+Polls can be dynamically prioritized or hidden based on these bubbles.
+Build APIs that allow for the development of recommendation systems or targeted polls, where users are shown specific questions based on their profile.
+Security and Scalability:
+
+Ensure that media uploads are secure and protected against unauthorized access.
+Implement rate-limiting and input validation to prevent abuse of the voting system.
+Use scalable storage for media content and a database that can handle large amounts of user interaction data.
+MVP Features Summary
+OAuth-based login for user authentication.
+Create polls with two voting options, supporting text, video, audio, or image formats.
+Vote and view results in real-time.
+Dynamic question board similar to TikTok, allowing users to explore polls through an engaging feed.
+Media file handling and optimization, including validation and storage.
+Designed for future personalization of user experiences via segmentation and bubbles.
+This backend will serve as the foundation for the mobile application, with a frontend being developed separately. Keep in mind that future iterations will introduce more complex features like user segmentation and AI-driven recommendations, but the initial focus is on building a robust, secure, and scalable system to handle voting interactions.

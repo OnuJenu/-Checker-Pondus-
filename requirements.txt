@@ -1,0 +1,13 @@
+Flask  
+SQLAlchemy  
+Flask-OAuthlib  
+Flask-Migrate  
+Flask-Script  
+Flask-RESTful  
+Flask-JWT-Extended  
+Flask-Cors  
+Pillow  
+moviepy  
+pydub  
+flask  
+Authlib  
