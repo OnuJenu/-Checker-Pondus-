@@ -1,6 +1,7 @@
-from app.models.voting_option import VotingOption
 from flask import request, jsonify, current_app, Blueprint
-from app.models.poll import Poll, VotingOption
+from app.models.poll import Poll
+from app.models.voting_option import VotingOption
+from app.models.vote import Vote
 from app.utils.security import get_current_user
 from sqlalchemy.exc import IntegrityError
 from app import db
@@ -12,31 +13,46 @@ poll_blueprint = Blueprint('poll', __name__)
 # Ensures that each poll has exactly two options.
 @poll_blueprint.route('/polls', methods=['POST'])
 def create_poll():
-    data = request.form
     try:
-        question = data['question']
-        option1_data = data['option1']
-        option2_data = data['option2']
-
-        # Create the poll and options
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Request must be JSON"}), 400
+            
+        # Validate required fields
+        required_fields = ['question', 'option1', 'option2']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": f"Missing required fields: {', '.join(required_fields)}"}), 400
+            
+        # Validate options structure
+        for option in [data['option1'], data['option2']]:
+            if not isinstance(option, dict):
+                return jsonify({"error": "Options must be objects"}), 400
+            if 'media_type' not in option or 'media_url' not in option:
+                return jsonify({"error": "Options must contain media_type and media_url"}), 400
+            if option['media_type'] not in ['text', 'image', 'video', 'audio']:
+                return jsonify({"error": "Invalid media_type. Must be 'text', 'image', 'video', or 'audio'"}), 400
+            
         user = get_current_user()
-
-        # Creating voting options with media information
-        voting_options = [
-            {'media_type': option1_data['media_type'], 'media_url': option1_data['media_url'],
-             'description': option1_data.get('description')},
-            {'media_type': option2_data['media_type'], 'media_url': option2_data['media_url'],
-             'description': option2_data.get('description')}
-        ]
-
-        poll = Poll.create_poll(question, user.id, voting_options)
+        
+        # Create poll using service layer
+        poll = current_app.poll_service.create_new_poll(
+            question=data['question'],
+            option_one=data['option1'],
+            option_two=data['option2'],
+            user_id=user.id
+        )
         return jsonify({"message": "Poll created", "poll_id": poll.id}), 201
 
     except KeyError as e:
         return jsonify({"error": f"Missing required field: {e}"}), 400
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except IntegrityError:
         db.session.rollback()
         return jsonify({"error": "Database integrity error"}), 500
+    except Exception as e:
+        current_app.logger.error(f"Error creating poll: {str(e)}")
+        return jsonify({"error": "Failed to create poll"}), 500
 
 # Retrieves a specific poll by its ID.
 # Returns details including the question, media URL, options, and creation date.
@@ -44,7 +60,6 @@ def create_poll():
 @poll_blueprint.route('/polls/<int:poll_id>', methods=['GET'])
 def get_poll(poll_id):
     poll = Poll.query.get_or_404(poll_id)
-    options = [option.to_dict() for option in poll.options]
     options = [option.to_dict() for option in poll.voting_options]
     return jsonify({
         "id": poll.id,

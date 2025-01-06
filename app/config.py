@@ -8,3 +8,6 @@ class Config:
     CORS_HEADERS = 'Content-Type'
     UPLOAD_FOLDER = '/path/to/upload/folder'
     ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'mp4', 'wav'}
+
+# Create settings instance
+settings = Config()

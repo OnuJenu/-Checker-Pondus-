@@ -18,7 +18,9 @@ The Media model ensures that each media file is correctly linked to its correspo
 import os
 from werkzeug.utils import secure_filename
 from flask import request, current_app
-from app import db
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import session
+from app.models import Base
 
 def allowed_file(filename):
     """
@@ -33,11 +35,12 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
-class Media(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    poll_id = db.Column(db.Integer, db.ForeignKey('poll.id'), nullable=False)
-    media_type = db.Column(db.String(50), nullable=False)  # e.g., 'image', 'video', 'audio'
-    file_path = db.Column(db.String(255), nullable=False)
+class Media(Base):
+    __tablename__ = 'media'
+    id = Column(Integer, primary_key=True)
+    poll_id = Column(Integer, ForeignKey('polls.id'), nullable=False)
+    media_type = Column(String(50), nullable=False)  # e.g., 'image', 'video', 'audio'
+    file_path = Column(String(255), nullable=False)
 
     def upload_media(self, poll_id, uploaded_file):
         """
@@ -77,14 +80,14 @@ class Media(db.Model):
                 media_type=file.content_type.split('/')[0],  # Determine type based on MIME type
                 file_path=full_path
             )
-            db.session.add(media_entry)
-            db.session.commit()
+            session.add(media_entry)
+            session.commit()
             
             return True
 
         return False
 
-    @classmethod
+    @staticmethod
     def get_media_by_poll(cls, poll_id):
         """
         Retrieves all media files associated with a specific poll ID.
@@ -95,4 +98,4 @@ class Media(db.Model):
         Returns:
             list: A list of Media objects associated with the given poll ID.
         """
-        return cls.query.filter_by(poll_id=poll_id).all()
+        return session.query(cls).filter_by(poll_id=poll_id).all()

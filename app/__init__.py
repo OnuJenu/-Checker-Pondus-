@@ -16,6 +16,10 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
 
+    # Initialize services
+    from app.services.poll_service import PollService
+    app.poll_service = PollService()
+
     from app.routes.auth import auth_blueprint, init_oauth
     from app.routes.poll import poll_blueprint
     from app.routes.media import media_blueprint

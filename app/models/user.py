@@ -16,16 +16,19 @@ Methods:
 The User model ensures that each user has a unique username and email, and it securely stores passwords using hashing techniques. This model is designed to integrate with the authentication system, supporting user registration, login, and profile management.
 """
 
-from app import db
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import session
+from app.models import Base
 from werkzeug.security import generate_password_hash, check_password_hash
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True)
-    email = db.Column(db.String(150), unique=True)
-    password_hash = db.Column(db.String(128))
-    oauth_provider = db.Column(db.String(50))  # e.g., 'google', 'facebook'
-    oauth_id = db.Column(db.String(150))       # Unique ID from OAuth provider
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    username = Column(String(150), unique=True)
+    email = Column(String(150), unique=True)
+    password_hash = Column(String(128))
+    oauth_provider = Column(String(50))  # e.g., 'google', 'facebook'
+    oauth_id = Column(String(150))       # Unique ID from OAuth provider
 
     def __init__(self, username=None, email=None, password=None, oauth_provider=None, oauth_id=None):
         if password:
@@ -53,14 +56,14 @@ class User(db.Model):
         Raises:
             ValueError: If the username or email already exists.
         """
-        if cls.query.filter_by(username=username).first():
+        if session.query(cls).filter_by(username=username).first():
             raise ValueError(f"Username '{username}' is already taken.")
-        if cls.query.filter_by(email=email).first():
+        if session.query(cls).filter_by(email=email).first():
             raise ValueError(f"Email '{email}' is already registered.")
 
         new_user = cls(username, email, password, oauth_provider, oauth_id)
-        db.session.add(new_user)
-        db.session.commit()
+        session.add(new_user)
+        session.commit()
         return new_user
 
     @classmethod
@@ -74,7 +77,7 @@ class User(db.Model):
         Returns:
             User: The user instance if found, otherwise None.
         """
-        return cls.query.get(user_id)
+        return session.query(cls).get(user_id)
 
     @classmethod
     def get_user_by_oauth(cls, provider, oauth_id):
@@ -88,7 +91,7 @@ class User(db.Model):
         Returns:
             User: The user instance if found, otherwise None.
         """
-        return cls.query.filter_by(oauth_provider=provider, oauth_id=oauth_id).first()
+        return session.query(cls).filter_by(oauth_provider=provider, oauth_id=oauth_id).first()
 
     def __repr__(self):
         return f"<User {self.username}>"

@@ -9,5 +9,6 @@ Flask-Cors
 Pillow  
 moviepy  
 pydub  
-flask  
-Authlib  
+flask
+Authlib
+pytest==7.2.2

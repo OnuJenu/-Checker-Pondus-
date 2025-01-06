@@ -1,4 +1,6 @@
+import os
 from tkinter import Image
+from app.config import Config
 from app.utils.validation import check_file_extension
 from werkzeug.utils import secure_filename
 
@@ -40,12 +42,12 @@ class MediaProcessor:
 
 def process_media_file(file, poll_id=None):
     # Logic to process media file
-    processor = MediaProcessor(upload_folder='/path/to/upload/folder')
+    processor = MediaProcessor(upload_folder=Config.UPLOAD_FOLDER)
     return processor.process_media_file(file, poll_id)
 
 def optimize_media(file_path):
     # Logic to optimize media
-    processor = MediaProcessor(upload_folder='/path/to/upload/folder')
+    processor = MediaProcessor(upload_folder=Config.UPLOAD_FOLDER)
     if os.path.splitext(file_path)[1] in ['.png', '.jpg', '.jpeg', '.gif']:
         return processor.optimize_image(file_path)
     elif os.path.splitext(file_path)[1] == '.mp4':

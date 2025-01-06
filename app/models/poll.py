@@ -15,22 +15,24 @@ Methods:
 - get_poll_by_id: A method to retrieve a poll's information based on its unique ID.
 """
 
-from app import db
 from datetime import datetime
-
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy.orm import relationship, backref
+from app.models import Base
+from app.databases.database import db
 from app.models.voting_option import VotingOption
 
-class Poll(db.Model):
+class Poll(Base):
     __tablename__ = 'polls'
-    id = db.Column(db.Integer, primary_key=True)
-    question = db.Column(db.String(255), nullable=False)
-    is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    id = Column(Integer, primary_key=True)
+    question = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     
     # Establish relationship to VotingOption
-    voting_options = db.relationship('VotingOption', back_populates='poll', cascade="all, delete-orphan")
-    user = db.relationship('User', backref=db.backref('polls', lazy=True))
+    voting_options = relationship('VotingOption', back_populates='poll', cascade="all, delete-orphan")
+    user = relationship('User', backref=backref('polls', lazy=True))
 
     def __init__(self, question, user_id):
         self.question = question
@@ -42,8 +44,8 @@ class Poll(db.Model):
             raise ValueError("Exactly two voting options are required.")
         
         new_poll = cls(question=question, user_id=user_id)
-        db.session.add(new_poll)
-        db.session.flush()  # To get the poll ID before adding voting options
+        db.add(new_poll)
+        db.flush()  # To get the poll ID before adding voting options
 
         # Add voting options to this poll
         for option_data in voting_options:
@@ -53,9 +55,9 @@ class Poll(db.Model):
                 description=option_data.get('description'),
                 poll_id=new_poll.id
             )
-            db.session.add(option)
+            db.add(option)
 
-        db.session.commit()
+        db.commit()
         return new_poll
 
     @classmethod
@@ -71,4 +73,4 @@ class Poll(db.Model):
                 option.media_type = option_data['media_type']
                 option.media_url = option_data['media_url']
                 option.description = option_data.get('description')
-        db.session.commit()
+        db.commit()
