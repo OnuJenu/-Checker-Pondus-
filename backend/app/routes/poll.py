@@ -156,9 +156,9 @@ def get_polls():
 
     query = Poll.query
     if filter_type == 'active':
-        query = query.filter_by(closed=False)
+        query = query.filter_by(is_active=True)
     elif filter_type == 'closed':
-        query = query.filter_by(closed=True)
+        query = query.filter_by(is_active=False)
 
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     polls = [poll.to_dict() for poll in pagination.items]
