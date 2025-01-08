@@ -59,16 +59,25 @@ def create_poll():
 # Retrieve specific poll
 @poll_blueprint.route('/polls/<int:poll_id>', methods=['GET'])
 def get_poll(poll_id):
-    poll = Poll.query.get_or_404(poll_id)
-    options = [option.to_dict() for option in poll.voting_options]
-    return jsonify({
-        "id": poll.id,
-        "question": poll.question,
-        "options": options,
-        "created_at": poll.created_at,
-        "is_active": poll.is_active,
-        "closed": poll.closed
-    }), 200
+    try:
+        if not poll_id or poll_id < 1:
+            return jsonify({"error": "Invalid poll ID"}), 400
+            
+        poll_details = current_app.poll_service.get_poll_details(poll_id)
+        if not poll_details:
+            return jsonify({"error": "Poll not found"}), 404
+            
+        return jsonify({
+            "id": poll_details["id"],
+            "question": poll_details["question"],
+            "options": poll_details["options"],
+            "created_at": poll_details["created_at"],
+            "is_active": poll_details["is_active"]
+        }), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Error getting poll {poll_id}: {str(e)}")
+        return jsonify({"error": "Failed to retrieve poll details"}), 500
 
 # Allows users to vote on a poll.
 # Ensures that the user has not already voted and that the poll is not closed.

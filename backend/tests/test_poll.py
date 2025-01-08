@@ -1,10 +1,29 @@
 import pytest
 from flask import Flask
-from werkzeug.exceptions import BadRequest
-from app.services.poll_service import PollService
+from werkzeug.exceptions import BadRequest, NotFound
 from app.models.poll import Poll
 from app.models.voting_option import VotingOption
-from app import create_app
+from app import create_app, db
+from datetime import datetime
+
+from app.services.poll_service import PollService
+
+@pytest.fixture
+def test_image_data():
+    return {
+        "question": "Which color do you prefer?",
+        "option1": {
+            "media_type": "image",
+            "media_url": "https://example.com/image1.jpg",
+            "description": "Blue"
+        },
+        "option2": {
+            "media_type": "image",
+            "media_url": "https://example.com/image2.jpg",
+            "description": "Red"
+        }
+    }
+
 
 @pytest.fixture
 def app():
@@ -15,6 +34,49 @@ def app():
 @pytest.fixture
 def client(app):
     return app.test_client()
+
+@pytest.fixture
+def poll_fixture(app):
+    """Fixture to create a test poll"""
+    def create_poll(test_data):
+        with app.app_context():
+            return app.poll_service.create_new_poll(
+                question=test_data['question'],
+                option_one=test_data['option1'],
+                option_two=test_data['option2'],
+                user_id=1
+            )
+    return create_poll
+
+def test_get_poll_success(app, client, poll_fixture, test_image_data):
+    """Test successful retrieval of an existing poll"""
+    test_poll = poll_fixture(test_image_data)
+
+    response = client.get(f'/polls/{test_poll.id}')
+    poll_data = response.get_json()
+    
+    assert poll_data['question'] == "Which color do you prefer?"
+    assert len(poll_data['options']) == 2
+    assert poll_data['options'][0]['media_type'] == "image"
+    assert poll_data['options'][1]['media_type'] == "image"
+
+def test_get_poll_not_found(client):
+    """Test retrieval of non-existent poll"""
+    response = client.get('/polls/999999')
+    assert response.status_code == 404
+    assert "Poll not found" in response.get_json()['error']
+
+def test_get_poll_with_closed_status(client, poll_fixture, test_image_data):
+    """Test retrieval of closed poll"""
+    test_poll = poll_fixture(test_image_data)
+
+    with client.application.app_context():
+        test_poll.is_active = False
+        db.session.commit()
+        
+    response = client.get(f'/polls/{test_poll.id}')
+    assert response.status_code == 200
+    assert response.get_json()['is_active'] is False
 
 def test_create_poll_success(app):
     """Test successful poll creation with valid inputs"""

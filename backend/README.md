@@ -78,11 +78,22 @@ pondus_one/
    cp .env.example .env
    # Edit .env with your configuration
    ```
+5. Create database:
+   ```bash
+   alembic upgrade head
+   ```
 
 5. Run the application:
    ```bash
    python3 -m app.main
    ```
+
+## Tests
+
+For run test use command:
+```bash
+   python -m pytest tests/test_poll.py -v 
+```
 
 ## API Documentation
 

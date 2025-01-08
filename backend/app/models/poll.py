@@ -39,10 +39,7 @@ class Poll(Base):
         self.user_id = user_id
 
     @classmethod
-    def create_poll(cls, question, voting_options, user_id):
-        if len(voting_options) != 2:
-            raise ValueError("Exactly two voting options are required.")
-        
+    def create_poll(cls, question, voting_options, user_id):        
         new_poll = cls(question=question, user_id=user_id)
         db.add(new_poll)
         db.flush()  # To get the poll ID before adding voting options
@@ -62,7 +59,7 @@ class Poll(Base):
 
     @classmethod
     def get_poll_by_id(cls, poll_id):
-        return cls.query.get(poll_id)
+        return db.query(cls).get(poll_id)
 
     def update_poll(self, question=None, voting_options=None):
         if question:

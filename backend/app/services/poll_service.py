@@ -50,33 +50,34 @@ class PollService:
                 
                 # Validate media type matches URL
                 if option['media_type'] == 'image':
-                    if not re.match(r'\.(jpg|jpeg|png|gif|webp)$', parsed_url.path.lower()):
+                    if not re.match(r'.*\.(jpg|jpeg|png|gif|webp)$', parsed_url.path.lower()):
                         raise ValueError("Image URL must end with .jpg, .jpeg, .png, .gif or .webp")
                 elif option['media_type'] == 'video':
-                    if not re.match(r'\.(mp4|mov|avi|webm)$', parsed_url.path.lower()):
+                    if not re.match(r'.*\.(mp4|mov|avi|webm)$', parsed_url.path.lower()):
                         raise ValueError("Video URL must end with .mp4, .mov, .avi or .webm")
                 elif option['media_type'] == 'audio':
-                    if not re.match(r'\.(mp3|wav|ogg)$', parsed_url.path.lower()):
+                    if not re.match(r'.*\.(mp3|wav|ogg)$', parsed_url.path.lower()):
                         raise ValueError("Audio URL must end with .mp3, .wav or .ogg")
             
             # Create media records if needed
             voting_options = []
             for i, option in enumerate([option_one, option_two]):
-                media = None
-                if option['media_type'] != 'text':
-                    media = Media(
-                        media_type=option['media_type'],
-                        url=option['media_url'],
-                        user_id=user_id
-                    )
-                    db.session.add(media)
-                    db.session.flush()
+                # media = None
+                # if option['media_type'] != 'text':
+                #     media = Media(
+                #         media_type=option['media_type'],
+                #         file_path=option['media_url'],
+                #         poll_id=poll.id
+                #     )
+                #     db.session.add(media)
+                #     db.session.flush()
+
                 
                 voting_options.append({
                     'media_type': option['media_type'],
                     'media_url': option['media_url'],
                     'description': option.get('description', f'Option {i+1}'),
-                    'media_id': media.id if media else None
+                    #'media_id': media.id if media else None
                 })
             
             return Poll.create_poll(
@@ -126,4 +127,4 @@ class PollService:
             }
             
         except Exception as e:
-            abort(500, description=f"Failed to get poll details: {str(e)}")
+            return None
