@@ -62,22 +62,22 @@ class PollService:
             # Create media records if needed
             voting_options = []
             for i, option in enumerate([option_one, option_two]):
-                # media = None
+                media = None
+                
                 # if option['media_type'] != 'text':
                 #     media = Media(
                 #         media_type=option['media_type'],
                 #         file_path=option['media_url'],
-                #         poll_id=poll.id
+                #         poll_id=None  # Will be set after poll creation
                 #     )
                 #     db.session.add(media)
                 #     db.session.flush()
 
-                
                 voting_options.append({
                     'media_type': option['media_type'],
                     'media_url': option['media_url'],
                     'description': option.get('description', f'Option {i+1}'),
-                    #'media_id': media.id if media else None
+                    'media_id': media.id if media else None
                 })
             
             return Poll.create_poll(
@@ -128,3 +128,40 @@ class PollService:
             
         except Exception as e:
             return None
+
+    def record_vote(self, poll_id: int, option_id: int, user_id: int) -> bool:
+        """
+        Record a user's vote on a poll
+        
+        Args:
+            poll_id: ID of the poll being voted on
+            option_id: ID of the option being voted for
+            user_id: ID of the user voting
+            
+        Returns:
+            bool: True if vote was successfully recorded
+            
+        Raises:
+            HTTPException: If voting fails
+        """
+        try:
+            poll: Poll|None = Poll.get_poll_by_id(poll_id)
+            if not poll:
+                abort(404, description="Poll not found")
+            
+            if not poll.is_active:
+                abort(400, description="Poll is no longer active")
+            
+            if poll.has_user_voted(user_id):
+                abort(400, description="User has already voted on this poll")
+            
+            if not poll.is_valid_option(option_id):
+                abort(400, description="Invalid voting option")
+                        
+            poll.record_vote(user_id, option_id)
+            db.session.commit()
+            return True
+            
+        except Exception as e:
+            db.session.rollback()
+            abort(500, description=f"Failed to record vote: {str(e)}")

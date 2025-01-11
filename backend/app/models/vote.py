@@ -24,12 +24,4 @@ class Vote(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     poll_id = Column(Integer, ForeignKey('polls.id'), nullable=False)
-    selected_option = Column(String(255), nullable=False)
-
-    def record_vote(self):
-        # Logic to record a vote
-        pass
-
-    def get_votes_by_poll(self, poll_id):
-        # Logic to retrieve votes by poll ID
-        pass
+    option_id = Column(Integer, ForeignKey('votin_option.id'), nullable=False)

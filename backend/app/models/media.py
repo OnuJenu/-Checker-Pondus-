@@ -19,7 +19,7 @@ import os
 from werkzeug.utils import secure_filename
 from flask import request, current_app
 from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import session
+from sqlalchemy.orm import Session
 from app.models import Base
 
 def allowed_file(filename):
@@ -53,11 +53,10 @@ class Media(Base):
         Returns:
             bool: True if the upload was successful, False otherwise.
         """
-        # Check if the file part is present
-        if 'file' not in request.files:
+        if not uploaded_file:
             return False
 
-        file = request.files['file']
+        file = uploaded_file
 
         # If user does not select file, browser also submits an empty part without filename
         if file.filename == '':
@@ -80,14 +79,15 @@ class Media(Base):
                 media_type=file.content_type.split('/')[0],  # Determine type based on MIME type
                 file_path=full_path
             )
-            session.add(media_entry)
-            session.commit()
+            db_session = Session.object_session(self)
+            db_session.add(media_entry)
+            db_session.commit()
             
             return True
 
         return False
 
-    @staticmethod
+    @classmethod
     def get_media_by_poll(cls, poll_id):
         """
         Retrieves all media files associated with a specific poll ID.
@@ -98,4 +98,5 @@ class Media(Base):
         Returns:
             list: A list of Media objects associated with the given poll ID.
         """
+        session = Session.object_session(cls)
         return session.query(cls).filter_by(poll_id=poll_id).all()

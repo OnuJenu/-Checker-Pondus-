@@ -19,6 +19,8 @@ The User model ensures that each user has a unique username and email, and it se
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import session
 from app.models import Base
+from app.databases.database import db
+
 from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(Base):
@@ -77,7 +79,7 @@ class User(Base):
         Returns:
             User: The user instance if found, otherwise None.
         """
-        return session.query(cls).get(user_id)
+        return db.query(cls).get(user_id)
 
     @classmethod
     def get_user_by_oauth(cls, provider, oauth_id):

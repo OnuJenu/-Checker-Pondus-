@@ -6,8 +6,11 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = 'your_jwt_secret_key'
     CORS_HEADERS = 'Content-Type'
-    UPLOAD_FOLDER = '/path/to/upload/folder'
-    ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'mp4', 'wav'}
+    UPLOAD_FOLDER = '/media/mswiderski/Data/workspace/OnuJenu/pondus/pondus_one/backend/uploads'
+    ALLOWED_EXTENSIONS = {
+        'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 
+        'mp4', 'mov', 'avi', 'webm', 'wav', 'mp3', 'ogg', 'aac'
+    }
 
 # Create settings instance
 settings = Config()

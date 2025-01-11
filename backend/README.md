@@ -92,7 +92,7 @@ pondus_one/
 
 For run test use command:
 ```bash
-   python -m pytest tests/test_poll.py -v 
+   python3 -m pytest tests/test_poll.py -v 
 ```
 
 ## API Documentation

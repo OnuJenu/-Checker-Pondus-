@@ -1,7 +1,4 @@
 from flask import request, jsonify, current_app, Blueprint
-from app.models.poll import Poll
-from app.models.voting_option import VotingOption
-from app.models.vote import Vote
 from app.utils.security import get_current_user
 from sqlalchemy.exc import IntegrityError
 from app import db
@@ -76,40 +73,47 @@ def get_poll(poll_id):
         }), 200
         
     except Exception as e:
-        current_app.logger.error(f"Error getting poll {poll_id}: {str(e)}")
-        return jsonify({"error": "Failed to retrieve poll details"}), 500
+        current_app.logger.error(f"Error retrieving poll: {str(e)}")
+        return jsonify({"error": "Failed to retrieve poll"}), 500
 
 # Allows users to vote on a poll.
 # Ensures that the user has not already voted and that the poll is not closed.
 # Records the vote in the database.
 # Vote on a poll
 @poll_blueprint.route('/polls/<int:poll_id>/vote', methods=['POST'])
-def vote_on_poll(poll_id):
-    data = request.json
-    option_id = data.get('option_id')
+def vote(poll_id):
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Request must be JSON"}), 400
+        
+        if 'option_id' not in data:
+            return jsonify({"error": "Missing option_id"}), 400
+        
+        user = get_current_user()
 
-    if not option_id:
-        return jsonify({"error": "Option ID is required"}), 400
+        # Vote using service layer
+        vote_result = current_app.poll_service.record_vote(
+            poll_id=poll_id,
+            option_id=data['option_id'],
+            user_id=user.id
+        )
 
-    user = get_current_user()
-    poll = Poll.query.get_or_404(poll_id)
-    option = VotingOption.query.filter_by(id=option_id, poll_id=poll.id).first()
+        return jsonify({
+            "result": vote_result,
+            "poll_id": poll_id,
+            "option_id": data['option_id']
+        }), 201
+        
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"error": "Database integrity error"}), 500
+    except Exception as e:
+        current_app.logger.error(f"Error voting on poll: {str(e)}")
+        return jsonify({"error": "Failed to vote on poll"}), 500
 
-    if not option:
-        return jsonify({"error": "Invalid option ID"}), 400
-
-    if poll.closed:
-        return jsonify({"error": "Poll is closed for voting"}), 403
-
-    existing_vote = Vote.query.filter_by(user_id=user.id, poll_id=poll.id).first()
-    if existing_vote:
-        return jsonify({"error": "You have already voted on this poll"}), 403
-
-    vote = Vote(user_id=user.id, option_id=option_id)
-    db.session.add(vote)
-    db.session.commit()
-
-    return jsonify({"message": "Vote recorded"}), 201
 
 # Retrieves the results of a closed poll.
 # Calculates the percentage of votes for each option.

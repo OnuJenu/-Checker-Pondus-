@@ -1,54 +1,13 @@
 import pytest
-from flask import Flask
-from werkzeug.exceptions import BadRequest, NotFound
+from werkzeug.exceptions import BadRequest
 from app.models.poll import Poll
-from app.models.voting_option import VotingOption
-from app import create_app, db
-from datetime import datetime
+from app import db
 
 from app.services.poll_service import PollService
 
-@pytest.fixture
-def test_image_data():
-    return {
-        "question": "Which color do you prefer?",
-        "option1": {
-            "media_type": "image",
-            "media_url": "https://example.com/image1.jpg",
-            "description": "Blue"
-        },
-        "option2": {
-            "media_type": "image",
-            "media_url": "https://example.com/image2.jpg",
-            "description": "Red"
-        }
-    }
+from tests.custom_fixtures import app, client, poll_fixture, test_image_data
 
-
-@pytest.fixture
-def app():
-    app = create_app()
-    app.config['TESTING'] = True
-    return app
-
-@pytest.fixture
-def client(app):
-    return app.test_client()
-
-@pytest.fixture
-def poll_fixture(app):
-    """Fixture to create a test poll"""
-    def create_poll(test_data):
-        with app.app_context():
-            return app.poll_service.create_new_poll(
-                question=test_data['question'],
-                option_one=test_data['option1'],
-                option_two=test_data['option2'],
-                user_id=1
-            )
-    return create_poll
-
-def test_get_poll_success(app, client, poll_fixture, test_image_data):
+def test_get_poll_success(client, poll_fixture, test_image_data):
     """Test successful retrieval of an existing poll"""
     test_poll = poll_fixture(test_image_data)
 

@@ -20,6 +20,7 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from app.models import Base
 from app.databases.database import db
+from app.models.vote import Vote
 from app.models.voting_option import VotingOption
 
 class Poll(Base):
@@ -70,4 +71,28 @@ class Poll(Base):
                 option.media_type = option_data['media_type']
                 option.media_url = option_data['media_url']
                 option.description = option_data.get('description')
+        db.commit()
+
+    def has_user_voted(self, user_id):
+        """Check if a specific user has voted on this poll"""
+        # Assuming there's a Vote model with poll_id and user_id
+        return db.query(Vote).filter_by(poll_id=self.id, user_id=user_id).first() is not None
+
+    def is_valid_option(self, option_id):
+        """Validate if a given option is valid for this poll"""
+        # Check if the option_id exists in this poll's voting options
+        return db.query(VotingOption).filter_by(poll_id=self.id, id=option_id).first() is not None
+
+    def record_vote(self, user_id, option_id):
+        """Record a vote for a user on a specific option"""
+        if not self.is_active:
+            raise ValueError("Poll is not active")
+        if not self.is_valid_option(option_id):
+            raise ValueError("Invalid voting option")
+        if self.has_user_voted(user_id):
+            raise ValueError("User has already voted")
+        # Create and record the vote
+    
+        vote = Vote(poll_id=self.id, user_id=user_id, option_id=option_id)
+        db.add(vote)
         db.commit()

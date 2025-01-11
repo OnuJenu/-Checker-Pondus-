@@ -48,15 +48,6 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['poll_id'], ['polls.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('votes',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('poll_id', sa.Integer(), nullable=False),
-    sa.Column('selected_option', sa.String(length=255), nullable=False),
-    sa.ForeignKeyConstraint(['poll_id'], ['polls.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
     op.create_table('voting_option',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('poll_id', sa.Integer(), nullable=False),
@@ -64,6 +55,16 @@ def upgrade() -> None:
     sa.Column('media_url', sa.String(length=255), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['poll_id'], ['polls.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('votes',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('poll_id', sa.Integer(), nullable=False),
+    sa.Column('option_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['option_id'], ['voting_option.id']),
+    sa.ForeignKeyConstraint(['poll_id'], ['polls.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###

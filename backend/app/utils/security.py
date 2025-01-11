@@ -1,6 +1,7 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import session
 from app.models.user import User
+from app import db
 
 def hash_password(password):
     return generate_password_hash(password)
@@ -18,5 +19,5 @@ def get_current_user():
     user_id = session.get('user_id')
     if not user_id:
         return None
-
-    return User.query.get(user_id)
+    
+    return db.session.query(User).filter_by(id=user_id).first()
