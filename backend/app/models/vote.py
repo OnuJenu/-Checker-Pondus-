@@ -24,4 +24,4 @@ class Vote(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     poll_id = Column(Integer, ForeignKey('polls.id'), nullable=False)
-    option_id = Column(Integer, ForeignKey('votin_option.id'), nullable=False)
+    option_id = Column(Integer, ForeignKey('voting_option.id'), nullable=False)

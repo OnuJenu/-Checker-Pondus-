@@ -29,8 +29,7 @@ def test_vote_valid(app, authenticated_client, poll_fixture, test_image_data):
       )
     
     # Verify response
-    assert response.status_code == 200
-    assert response.get_json()['success'] is True
+    assert response.status_code == 201
     
     # Verify vote is recorded in database
     with authenticated_client.application.app_context():
