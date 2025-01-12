@@ -144,24 +144,54 @@ class PollService:
         Raises:
             HTTPException: If voting fails
         """
+        poll: Poll|None = Poll.get_poll_by_id(poll_id)
+        if not poll:
+            abort(404, description="Poll not found")
+        
+        if not poll.is_active:
+            abort(400, description="Poll is no longer active")
+        
+        if poll.has_user_voted(user_id):
+            abort(400, description="User has already voted on this poll")
+        
+        if not poll.is_valid_option(option_id):
+            abort(400, description="Invalid voting option")
+
+        try:                
+            poll.record_vote(user_id, option_id)
+            db.session.commit()
+            return True            
+
+        except Exception as e:
+            db.session.rollback()
+            abort(500, description=f"Failed to record vote: {str(e)}")
+    
+    def close_poll(self, poll_id: int, user_id: int) -> bool:
+        """
+        Close a poll, only the poll owner can perform this action
+        
+        Args:
+            poll_id: ID of the poll to close
+            user_id: ID of the user attempting to close the poll
+            
+        Returns:
+            bool: True if poll was successfully closed
+            
+        Raises:
+            HTTPException: If closing fails or user is not the owner
+        """
         try:
-            poll: Poll|None = Poll.get_poll_by_id(poll_id)
+            poll = Poll.get_poll_by_id(poll_id)
             if not poll:
                 abort(404, description="Poll not found")
             
-            if not poll.is_active:
-                abort(400, description="Poll is no longer active")
+            if poll.user_id != user_id:
+                abort(403, description="Only the poll owner can close the poll")
             
-            if poll.has_user_voted(user_id):
-                abort(400, description="User has already voted on this poll")
-            
-            if not poll.is_valid_option(option_id):
-                abort(400, description="Invalid voting option")
-                        
-            poll.record_vote(user_id, option_id)
+            poll.is_active = False
             db.session.commit()
             return True
             
         except Exception as e:
             db.session.rollback()
-            abort(500, description=f"Failed to record vote: {str(e)}")
+            abort(500, description=f"Failed to close poll: {str(e)}")

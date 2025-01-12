@@ -1,4 +1,5 @@
 from flask import request, jsonify, current_app, Blueprint
+import werkzeug
 from app.utils.security import get_current_user
 from sqlalchemy.exc import IntegrityError
 from app import db
@@ -104,6 +105,9 @@ def vote(poll_id):
             "poll_id": poll_id,
             "option_id": data['option_id']
         }), 201
+    
+    except werkzeug.exceptions.HTTPException as e:
+        return jsonify({"error": e.description}), e.code
         
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
