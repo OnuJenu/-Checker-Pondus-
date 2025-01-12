@@ -3,3 +3,4 @@ Create a Python-based application that will serve as a backend REST API for a mo
 Application Overview
 The primary purpose of this backend application is to allow users to create and participate in polls with two options. Polls can include questions about any topic, and the options may range from abstract preferences ("Which color dress is better?") to more concrete decisions ("Who will win the election?" or "Go left or right?"). This platform should support rich media submissions (video, images, audio) alongside traditional text questions.
 
+Do not remove any existed implementation

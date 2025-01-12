@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -8,7 +9,7 @@ migrate = Migrate()
 jwt = JWTManager()
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, instance_path=os.path.join(os.getcwd()))
     CORS(app)
     app.config.from_object('app.config.Config')
 
