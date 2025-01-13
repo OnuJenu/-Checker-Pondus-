@@ -1,9 +1,18 @@
 from flask import request, Blueprint
 from app.routes.poll_impl.create_poll import create_poll_impl
-from app.routes.poll_impl.get_pool import get_poll_impl
+from app.routes.poll_impl.get_polls import get_polls_impl
+from app.routes.poll_impl.get_poll import get_poll_impl
 from app.routes.poll_impl.poll_vote import poll_vote_impl
 
 poll_blueprint = Blueprint('poll', __name__)
+
+# Provides a paginated list of polls.
+# Supports filtering by active or closed polls.
+# Returns a list of polls with basic details and pagination information.
+# Retrieve a paginated list of polls
+@poll_blueprint.route('/polls', methods=['GET'])
+def get_polls():
+    return get_polls_impl(request)
 
 # Handles the creation of a new poll.
 # Validates and saves media if provided.
@@ -59,31 +68,6 @@ def vote(poll_id):
 #         "question": poll.question,
 #         "results": results,
 #         "total_votes": total_votes
-#     }), 200
-
-# # Provides a paginated list of polls.
-# # Supports filtering by active or closed polls.
-# # Returns a list of polls with basic details and pagination information.
-# # Retrieve a paginated list of polls
-# @poll_blueprint.route('/polls', methods=['GET'])
-# def get_polls():
-#     page = request.args.get('page', 1, type=int)
-#     per_page = current_app.config.get('PAGINATION_PER_PAGE', 10)
-#     filter_type = request.args.get('filter', 'all')
-
-#     query = Poll.query
-#     if filter_type == 'active':
-#         query = query.filter_by(is_active=True)
-#     elif filter_type == 'closed':
-#         query = query.filter_by(is_active=False)
-
-#     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
-#     polls = [poll.to_dict() for poll in pagination.items]
-
-#     return jsonify({
-#         "polls": polls,
-#         "total_pages": pagination.pages,
-#         "current_page": page
 #     }), 200
 
 # # Allows the creator of a poll to close it, preventing further voting.

@@ -110,21 +110,7 @@ class PollService:
             if not poll:
                 abort(404, description="Poll not found")
                 
-            return {
-                "id": poll.id,
-                "question": poll.question,
-                "created_at": poll.created_at.isoformat(),
-                "is_active": poll.is_active,
-                "options": [
-                    {
-                        "id": opt.id,
-                        "media_type": opt.media_type,
-                        "media_url": opt.media_url,
-                        "description": opt.description
-                    }
-                    for opt in poll.voting_options
-                ]
-            }
+            return poll.to_dict()
             
         except Exception as e:
             return None

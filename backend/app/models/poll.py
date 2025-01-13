@@ -39,6 +39,23 @@ class Poll(Base):
         self.question = question
         self.user_id = user_id
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "question": self.question,
+            "created_at": self.created_at.isoformat(),
+            "is_active": self.is_active,
+            "options": [
+                {
+                    "id": opt.id,
+                    "media_type": opt.media_type,
+                    "media_url": opt.media_url,
+                    "description": opt.description
+                }
+                for opt in self.voting_options
+            ]
+        }
+
     @classmethod
     def create_poll(cls, question, voting_options, user_id):        
         new_poll = cls(question=question, user_id=user_id)
