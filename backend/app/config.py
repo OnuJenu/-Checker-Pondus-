@@ -11,6 +11,15 @@ class Config:
         'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 
         'mp4', 'mov', 'avi', 'webm', 'wav', 'mp3', 'ogg', 'aac'
     }
+    GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID"  # Replace with your Google Client ID
+    GOOGLE_CLIENT_SECRET = "YOUR_GOOGLE_CLIENT_SECRET"  # Replace with your Google Client Secret
+    GOOGLE_REDIRECT_URI = "http://localhost:8000/auth/google_callback"
+    TWITTER_CLIENT_ID = "YOUR_TWITTER_CLIENT_ID"  # Replace with your Twitter Client ID
+    TWITTER_CLIENT_SECRET = "YOUR_TWITTER_CLIENT_SECRET"  # Replace with your Twitter Client Secret
+    TWITTER_REDIRECT_URI = "http://localhost:8000/auth/twitter_callback"
+    FACEBOOK_CLIENT_ID = "YOUR_FACEBOOK_CLIENT_ID"  # Replace with your Facebook Client ID
+    FACEBOOK_CLIENT_SECRET = "YOUR_FACEBOOK_CLIENT_SECRET"  # Replace with your Facebook Client Secret
+    FACEBOOK_REDIRECT_URI = "http://localhost:8000/auth/facebook_callback"
 
 # Create settings instance
 settings = Config()

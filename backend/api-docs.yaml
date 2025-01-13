@@ -1,3 +1,4 @@
+
 openapi: 3.0.0
 info:
   title: Mobile Voting Platform Backend API
@@ -11,7 +12,7 @@ servers:
 paths:
   /auth/login:
     post:
-      summary: Authenticate user via OAuth
+      summary: Authenticate user with username and password
       requestBody:
         required: true
         content:
@@ -19,12 +20,12 @@ paths:
             schema:
               type: object
               properties:
-                provider:
+                username:
                   type: string
-                  example: google
-                oauth_token:
+                  example: johndoe
+                password:
                   type: string
-                  example: "ABC123..."
+                  example: "password123"
       responses:
         '200':
           description: Successful authentication
@@ -37,8 +38,77 @@ paths:
                     type: string
                   token_type:
                     type: string
-        '400':
-          description: Invalid OAuth provider or token
+        '401':
+          description: Invalid credentials
+
+  /auth/google/auth:
+    get:
+      summary: Redirect to Google OAuth
+      responses:
+        '200':
+          description: Redirect initiated
+
+  /auth/google/callback:
+    get:
+      summary: Handle Google OAuth callback
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+
+  /auth/twitter/auth:
+    get:
+      summary: Redirect to Twitter OAuth
+      responses:
+        '200':
+          description: Redirect initiated
+
+  /auth/twitter/callback:
+    get:
+      summary: Handle Twitter OAuth callback
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+
+  /auth/facebook/auth:
+    get:
+      summary: Redirect to Facebook OAuth
+      responses:
+        '200':
+          description: Redirect initiated
+
+  /auth/facebook/callback:
+    get:
+      summary: Handle Facebook OAuth callback
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
 
   /users:
     post:

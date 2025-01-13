@@ -12,3 +12,5 @@ pydub
 flask
 Authlib
 pytest==7.2.2
+google-auth
+oauth2
