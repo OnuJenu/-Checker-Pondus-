@@ -23,11 +23,27 @@ def authenticate_user(username, password):
         return user
     return None
 
+import datetime
+import jwt
+
 def generate_tokens(user):
-    # Generate JWT tokens or session tokens
+    # Generate access token with 15 minute expiration
+    access_token = jwt.encode({
+        'user_id': user.id,
+        'username': user.username,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+    }, settings.JWT_SECRET_KEY, algorithm='HS256')
+
+    # Generate refresh token with 7 day expiration
+    refresh_token = jwt.encode({
+        'user_id': user.id,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
+    }, settings.JWT_SECRET_KEY, algorithm='HS256')
+
     return {
-        'access_token': 'generated_access_token',
-        'refresh_token': 'generated_refresh_token'
+        'access_token': access_token,
+        'refresh_token': refresh_token,
+        'token_type': 'bearer'
     }
 
 def redirect_to_google_auth():

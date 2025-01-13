@@ -16,11 +16,15 @@ def test_vote_valid(app, authenticated_client, poll_fixture, test_image_data):
     # Submit vote for first option
     with authenticated_client.application.app_context():
       user_id = authenticated_client.user.id
+      access_token = authenticated_client.tokens['access_token']
 
       response = authenticated_client.post(
         f'/polls/{test_poll.id}/vote',
         json={
             'option_id': voting_options[0].id
+        },
+        headers={
+            'Authorization': f'Bearer {access_token}'
         }
       )
     
@@ -42,11 +46,16 @@ def test_vote_valid(app, authenticated_client, poll_fixture, test_image_data):
 
 def test_vote_invalid_poll_id(app, authenticated_client):
     """Test voting on a non-existent poll"""
+    access_token = authenticated_client.tokens['access_token']
+
     with app.app_context():
         response = authenticated_client.post(
             '/polls/999/vote',
             json={
                 'option_id': 1
+            },
+            headers={
+                'Authorization': f'Bearer {access_token}'
             }
         )
     
@@ -56,6 +65,8 @@ def test_vote_invalid_poll_id(app, authenticated_client):
 def test_vote_poll_not_active(authenticated_client, poll_fixture, test_image_data):
     """Test voting on an inactive poll"""
     with authenticated_client.application.app_context():
+        access_token = authenticated_client.tokens['access_token']
+
         test_poll = poll_fixture(test_image_data)
         poll_service = PollService()
         poll_service.close_poll(test_poll.id, authenticated_client.user.id)
@@ -64,6 +75,9 @@ def test_vote_poll_not_active(authenticated_client, poll_fixture, test_image_dat
             f'/polls/{test_poll.id}/vote',
             json={
                 'option_id': test_poll.voting_options[0].id
+            },
+            headers={
+                'Authorization': f'Bearer {access_token}'
             }
         )
     
@@ -75,6 +89,7 @@ def test_vote_user_already_voted(authenticated_client, poll_fixture, test_image_
     with authenticated_client.application.app_context():
       test_poll = poll_fixture(test_image_data)
       user_id = authenticated_client.user.id
+      access_token = authenticated_client.tokens['access_token']
 
       # Create initial vote
       vote = Vote(
@@ -89,6 +104,9 @@ def test_vote_user_already_voted(authenticated_client, poll_fixture, test_image_
           f'/polls/{test_poll.id}/vote',
           json={
               'option_id': test_poll.voting_options[0].id
+          },
+          headers={
+              'Authorization': f'Bearer {access_token}'
           }
       )
     
@@ -100,10 +118,14 @@ def test_vote_invalid_option(app, authenticated_client, poll_fixture, test_image
     test_poll = poll_fixture(test_image_data)
 
     with app.app_context():
+        access_token = authenticated_client.tokens['access_token']
         response = authenticated_client.post(
             f'/polls/{test_poll.id}/vote',
             json={
                 'option_id': -1
+            },
+            headers={
+                'Authorization': f'Bearer {access_token}'
             }
         )
     

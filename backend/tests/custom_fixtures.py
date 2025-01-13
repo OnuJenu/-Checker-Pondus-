@@ -2,7 +2,8 @@ import pytest
 
 from app import create_app, db
 from app.models.user import User
-from flask import session
+
+from app.services.auth_service import generate_tokens
 
 @pytest.fixture
 def test_image_data():
@@ -55,6 +56,7 @@ def authenticated_client(app):
                 sess['user_id'] = test_user.id
 
         client.user = test_user
+        client.tokens = generate_tokens(test_user)
 
         return client
 
