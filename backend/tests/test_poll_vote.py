@@ -131,3 +131,25 @@ def test_vote_invalid_option(app, authenticated_client, poll_fixture, test_image
     
     assert response.status_code == 400
     assert response.get_json()['error'] == "Invalid voting option"
+
+def test_get_polls(app, authenticated_client, poll_fixture, test_image_data):
+    """Test getting a list of polls"""
+    # Create test polls
+    poll1 = poll_fixture(test_image_data)
+    poll2 = poll_fixture(test_image_data)
+
+    with app.app_context():
+        access_token = authenticated_client.tokens['access_token']
+        response = authenticated_client.get(
+            '/polls',
+            headers={
+                'Authorization': f'Bearer {access_token}'
+            }
+        )
+    
+    assert response.status_code == 200
+    data = response.get_json()
+    assert isinstance(data, list)
+    assert len(data) >= 2
+    assert any(p['id'] == poll1.id for p in data)
+    assert any(p['id'] == poll2.id for p in data)
