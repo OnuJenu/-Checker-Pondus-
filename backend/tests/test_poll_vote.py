@@ -3,7 +3,7 @@ from app import db
 
 from app.services.poll_service import PollService
 
-from tests.custom_fixtures import app, client, poll_fixture, test_image_data, authenticated_client
+from tests.custom_fixtures import  client, poll_fixture, test_image_data, authenticated_client
 
 def test_vote_valid(app, authenticated_client, poll_fixture, test_image_data):
     """Test successful vote submission"""
@@ -34,7 +34,7 @@ def test_vote_valid(app, authenticated_client, poll_fixture, test_image_data):
     # Verify vote is recorded in database
     with authenticated_client.application.app_context():
         user_id = authenticated_client.user.id
-        vote = db.session.query(Vote).filter_by(
+        vote = db.query(Vote).filter_by(
             poll_id=test_poll.id,
             option_id=voting_options[0].id,
             user_id=user_id
@@ -97,8 +97,8 @@ def test_vote_user_already_voted(authenticated_client, poll_fixture, test_image_
           option_id=test_poll.voting_options[0].id,
           user_id=user_id
       )
-      db.session.add(vote)
-      db.session.commit()
+      db.add(vote)
+      db.commit()
 
       response = authenticated_client.post(
           f'/polls/{test_poll.id}/vote',
@@ -131,25 +131,3 @@ def test_vote_invalid_option(app, authenticated_client, poll_fixture, test_image
     
     assert response.status_code == 400
     assert response.get_json()['error'] == "Invalid voting option"
-
-def test_get_polls(app, authenticated_client, poll_fixture, test_image_data):
-    """Test getting a list of polls"""
-    # Create test polls
-    poll1 = poll_fixture(test_image_data)
-    poll2 = poll_fixture(test_image_data)
-
-    with app.app_context():
-        access_token = authenticated_client.tokens['access_token']
-        response = authenticated_client.get(
-            '/polls',
-            headers={
-                'Authorization': f'Bearer {access_token}'
-            }
-        )
-    
-    assert response.status_code == 200
-    data = response.get_json()
-    assert isinstance(data, list)
-    assert len(data) >= 2
-    assert any(p['id'] == poll1.id for p in data)
-    assert any(p['id'] == poll2.id for p in data)

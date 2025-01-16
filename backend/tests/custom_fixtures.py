@@ -1,9 +1,7 @@
 import pytest
-
-from app import create_app, db
 from app.models.user import User
-
 from app.services.auth_service import generate_tokens
+from app.databases.database import db
 
 @pytest.fixture
 def test_image_data():
@@ -22,21 +20,18 @@ def test_image_data():
     }
 
 @pytest.fixture
-def app():
-    app = create_app()
-    app.config['TESTING'] = True
-    return app
-
-@pytest.fixture
 def client(app):
     return app.test_client()
 
 @pytest.fixture
-def authenticated_client(app):
+def authenticated_client(app, test_db):
     """Fixture to create and login a test user"""
-    with app.app_context():
-        # Try to load test_user from the database
-        test_user = db.session.query(User).filter_by(username="test_user").first()
+    with app.app_context():    
+        # Ensure database is initialized
+        test_db
+        db.commit()
+            
+        test_user = db.query(User).filter_by(username="test_user").first()
         
         # If test_user doesn't exist, create a new one
         if not test_user:
@@ -45,8 +40,8 @@ def authenticated_client(app):
                 email="test@example.com",
                 password="test_password"
             )
-            db.session.add(test_user)
-            db.session.commit()
+            db.add(test_user)
+            db.commit()
 
         # Login user
         client = app.test_client()

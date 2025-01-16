@@ -5,7 +5,7 @@ from app import db
 
 from app.services.poll_service import PollService
 
-from tests.custom_fixtures import app, client, poll_fixture, test_image_data
+from tests.custom_fixtures import  client, poll_fixture, test_image_data, authenticated_client
 
 def test_get_poll_success(client, poll_fixture, test_image_data):
     """Test successful retrieval of an existing poll"""
@@ -31,7 +31,7 @@ def test_get_poll_with_closed_status(client, poll_fixture, test_image_data):
 
     with client.application.app_context():
         test_poll.is_active = False
-        db.session.commit()
+        db.commit()
         
     response = client.get(f'/polls/{test_poll.id}')
     assert response.status_code == 200
@@ -165,3 +165,28 @@ def test_create_poll_missing_media_fields(app):
             )
     
     assert "must contain media_type and media_url" in str(exc_info.value)
+
+
+def test_get_polls(clean_db, test_db, app, authenticated_client, poll_fixture, test_image_data):
+    """Test getting a list of polls"""
+    with app.app_context():
+        # Verify database is empty
+        assert db.query(Poll).count() == 0
+
+        # Create test polls
+        poll1 = poll_fixture(test_image_data)
+        poll2 = poll_fixture(test_image_data)
+
+        access_token = authenticated_client.tokens['access_token']
+        response = authenticated_client.get(
+            '/polls',
+            headers={
+                'Authorization': f'Bearer {access_token}'
+            }
+        )
+    
+    assert response.status_code == 200
+    data = response.get_json()
+    assert len(data["polls"]) >= 2
+    assert any(p['id'] == poll1.id for p in data["polls"])
+    assert any(p['id'] == poll2.id for p in data["polls"])

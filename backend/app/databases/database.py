@@ -25,6 +25,13 @@ Base = declarative_base()
 
 def init_db():
     """Initialize the database by creating all tables"""
+    # Import all models to ensure they're registered with Base
+    from app.models.user import User
+    from app.models.poll import Poll
+    from app.models.vote import Vote
+    from app.models.voting_option import VotingOption
+    from app.models.media import Media
+    
     Base.metadata.create_all(bind=engine)
 
 def get_db():

@@ -66,6 +66,6 @@ def get_current_user():
         if datetime.utcnow() > datetime.fromtimestamp(payload['exp']):
             raise JWTTokenExpired("JWT token is expired")
             
-        return db.session.query(User).filter_by(id=payload['user_id']).first()
+        return db.query(User).filter_by(id=payload['user_id']).first()
     except jwt.PyJWTError:
         raise JWTDecodingError("JWT decoding failed")

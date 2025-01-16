@@ -70,8 +70,8 @@ class PollService:
                 #         file_path=option['media_url'],
                 #         poll_id=None  # Will be set after poll creation
                 #     )
-                #     db.session.add(media)
-                #     db.session.flush()
+                #     db.add(media)
+                #     db.flush()
 
                 voting_options.append({
                     'media_type': option['media_type'],
@@ -89,7 +89,7 @@ class PollService:
         except ValueError as e:
             abort(400, description=str(e))
         except Exception as e:
-            db.session.rollback()
+            db.rollback()
             abort(500, description=f"Failed to create poll: {str(e)}")
 
     def get_poll_details(self, poll_id: int) -> dict:
@@ -145,11 +145,11 @@ class PollService:
 
         try:                
             poll.record_vote(user_id, option_id)
-            db.session.commit()
+            db.commit()
             return True            
 
         except Exception as e:
-            db.session.rollback()
+            db.rollback()
             abort(500, description=f"Failed to record vote: {str(e)}")
     
     def close_poll(self, poll_id: int, user_id: int) -> bool:
@@ -175,9 +175,9 @@ class PollService:
                 abort(403, description="Only the poll owner can close the poll")
             
             poll.is_active = False
-            db.session.commit()
+            db.commit()
             return True
             
         except Exception as e:
-            db.session.rollback()
+            db.rollback()
             abort(500, description=f"Failed to close poll: {str(e)}")

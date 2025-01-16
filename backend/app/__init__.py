@@ -1,19 +1,24 @@
 import os
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-db = SQLAlchemy()
+from app.databases.database import db
 migrate = Migrate()
 jwt = JWTManager()
 
-def create_app():
+def create_app(config_class=None):
     app = Flask(__name__, instance_path=os.path.join(os.getcwd()))
     CORS(app)
-    app.config.from_object('app.config.Config')
+    if config_class:
+        app.config.from_object(config_class)
+    else:
+        app.config.from_object('app.config.Config')
 
-    db.init_app(app)
+    # Initialize database
+    from app.databases.database import init_db
+    init_db()
+    
     migrate.init_app(app, db)
     jwt.init_app(app)
 

@@ -12,9 +12,9 @@ def get_polls_impl(request):
 
     query = db.query(Poll)
     if order == 'asc':
-        query = query.order_by(Poll.created_date.asc())
+        query = query.order_by(Poll.created_at.asc())
     else:
-        query = query.order_by(Poll.created_date.desc())
+        query = query.order_by(Poll.created_at.desc())
     if filter_type == 'active':
         query = query.filter_by(is_active=True)
     elif filter_type == 'closed':

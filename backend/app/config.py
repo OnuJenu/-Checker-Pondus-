@@ -21,5 +21,9 @@ class Config:
     FACEBOOK_CLIENT_SECRET = "YOUR_FACEBOOK_CLIENT_SECRET"  # Replace with your Facebook Client Secret
     FACEBOOK_REDIRECT_URI = "http://localhost:8000/auth/facebook_callback"
 
+class TestConfig(Config):
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///instance/test.db'
+    TESTING = True
+
 # Create settings instance
 settings = Config()

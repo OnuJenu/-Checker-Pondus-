@@ -41,7 +41,7 @@ def create_poll_impl(request):
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except IntegrityError:
-        db.session.rollback()
+        db.rollback()
         return jsonify({"error": "Database integrity error"}), 500
     except Exception as e:
         current_app.logger.error(f"Error creating poll: {str(e)}")

@@ -81,6 +81,8 @@ pondus_one/
 5. Create database:
    ```bash
    alembic upgrade head
+
+   ALEMBIC_CONFIG=alembic_test.ini alembic upgrade head
    ```
 
 5. Run the application:

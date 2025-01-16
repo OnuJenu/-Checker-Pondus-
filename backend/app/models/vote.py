@@ -15,8 +15,7 @@ Methods:
 
 The Vote model ensures that each vote is associated with a specific user and poll, and it records the user's selected option. This model is designed to integrate with the voting system, supporting the accurate tracking and analysis of voting data.
 """
-from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import session
+from sqlalchemy import Column, Integer, ForeignKey
 from app.models import Base
 
 class Vote(Base):
