@@ -23,4 +23,6 @@ def upload_media():
 
 @media_blueprint.route('/media/<int:poll_id>', methods=['GET'])
 def get_media(poll_id):
-    return jsonify({"message": f"Media for poll {poll_id}"}), 200
+    media_service = get_media_service()
+    media_files = media_service.get_media_for_poll(poll_id)
+    return jsonify({"media_files": media_files}), 200

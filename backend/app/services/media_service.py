@@ -1,13 +1,14 @@
 import os
-from tkinter import Image
+from PIL import Image
 from app.config import Config
 from app.utils.validation import check_file_extension
 from werkzeug.utils import secure_filename
+import moviepy.editor as mp
 
 class MediaProcessor:
     def __init__(self, upload_folder):
         self.media_service = MediaService(upload_folder)
-    
+
     def process_media_file(self, file, poll_id):
         """
         Processes the uploaded media file based on its type.
@@ -16,7 +17,7 @@ class MediaProcessor:
         :return: The path to the processed media file or None if processing fails
         """
         return self.media_service.process_media_file(file, poll_id)
-    
+
     def optimize_image(self, image_path):
         """
         Optimizes an image by resizing it to a standard format.
@@ -24,7 +25,7 @@ class MediaProcessor:
         :return: The path to the optimized image file
         """
         return self.media_service.optimize_image(image_path)
-    
+
     def optimize_video(self, video_path):
         """
         Optimizes a video by compressing it.
@@ -32,7 +33,7 @@ class MediaProcessor:
         :return: The path to the optimized video file
         """
         return self.media_service.optimize_video(video_path)
-    
+
     def delete_media_file(self, file_path):
         """
         Deletes a media file.
@@ -65,7 +66,7 @@ class MediaService:
         # Validate file extension and size
         if not check_file_extension(filename, self.allowed_extensions):
             raise ValueError("Unsupported file format")
-        
+
         file.save(file_path)
 
         # Optimize the media based on its type
@@ -99,3 +100,10 @@ class MediaService:
 
     def delete_media_file(self, file_path):
         os.remove(file_path)
+
+    def get_media_for_poll(self, poll_id):
+        media_files = []
+        for filename in os.listdir(self.upload_folder):
+            if filename.startswith(f"poll_{poll_id}_"):
+                media_files.append(os.path.join(self.upload_folder, filename))
+        return media_files

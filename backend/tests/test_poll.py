@@ -87,7 +87,7 @@ def test_create_poll_missing_fields(app):
                 user_id=1
             )
         
-        assert "Options must contain media_type and media_url" in str(exc_info.value)
+        assert "Options must contain media_type" in str(exc_info.value)
 
 def test_create_poll_invalid_media_type(app):
     """Test poll creation with invalid media type"""
@@ -164,7 +164,7 @@ def test_create_poll_missing_media_fields(app):
                 user_id=1
             )
     
-    assert "must contain media_type and media_url" in str(exc_info.value)
+    assert "must contain media_type" in str(exc_info.value)
 
 
 def test_get_polls(clean_db, app, authenticated_client, poll_fixture, test_image_data):

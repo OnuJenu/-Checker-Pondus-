@@ -38,7 +38,7 @@ def allowed_file(filename):
 class Media(Base):
     __tablename__ = 'media'
     id = Column(Integer, primary_key=True)
-    poll_id = Column(Integer, ForeignKey('polls.id'), nullable=False)
+    poll_id = Column(Integer, ForeignKey('polls.id'), nullable=True)
     media_type = Column(String(50), nullable=False)  # e.g., 'image', 'video', 'audio'
     file_path = Column(String(255), nullable=False)
 
