@@ -44,6 +44,63 @@ def test_vote_valid(app, authenticated_client, poll_fixture, test_image_data):
         assert vote.poll_id == test_poll.id
         assert vote.option_id == voting_options[0].id
 
+def test_get_poll_results_with_vote(authenticated_client, client, poll_fixture, test_image_data):
+    """Test retrieval of results for a closed poll"""
+    test_poll = poll_fixture(test_image_data)
+
+    voting_options = test_poll.voting_options
+    with authenticated_client.application.app_context():
+      user_id = authenticated_client.user.id
+      access_token = authenticated_client.tokens['access_token']
+
+      response = authenticated_client.post(
+        f'/polls/{test_poll.id}/vote',
+        json={
+            'option_id': voting_options[0].id
+        },
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+      )
+
+    # Simulate voting to ensure there are results
+    with client.application.app_context():
+        test_poll.is_active = False
+        db.commit()  # Corrected to use db.commit() directly
+
+    response = client.get(f'/polls/{test_poll.id}/results')
+    assert response.status_code == 200
+    results_data = response.get_json()
+    
+    # Assuming the results contain a 'results' key with options and their vote percentages
+    assert 'results' in results_data
+    assert len(results_data['results']) == 2  # Expecting two options
+    assert 'percentage' in results_data['results'][0]
+    assert 'percentage' in results_data['results'][1]
+    assert results_data['results'][0]['percentage'] == 100
+    assert results_data['results'][1]['percentage'] == 0
+
+def test_get_poll_results_empty(client, poll_fixture, test_image_data):
+    """Test retrieval of results for a closed poll"""
+    test_poll = poll_fixture(test_image_data)
+
+    # Simulate voting to ensure there are results
+    with client.application.app_context():
+        test_poll.is_active = False
+        db.commit()  # Corrected to use db.commit() directly
+
+    response = client.get(f'/polls/{test_poll.id}/results')
+    assert response.status_code == 200
+    results_data = response.get_json()
+    
+    # Assuming the results contain a 'results' key with options and their vote percentages
+    assert 'results' in results_data
+    assert len(results_data['results']) == 2  # Expecting two options
+    assert 'percentage' in results_data['results'][0]
+    assert 'percentage' in results_data['results'][1]
+    assert results_data['results'][0]['percentage'] >= 0
+    assert results_data['results'][1]['percentage'] >= 0
+
 def test_vote_invalid_poll_id(app, authenticated_client):
     """Test voting on a non-existent poll"""
     access_token = authenticated_client.tokens['access_token']

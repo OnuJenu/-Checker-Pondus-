@@ -3,6 +3,7 @@ from app.routes.poll_impl.create_poll import create_poll_impl
 from app.routes.poll_impl.get_polls import get_polls_impl
 from app.routes.poll_impl.get_poll import get_poll_impl
 from app.routes.poll_impl.poll_vote import poll_vote_impl
+from app.routes.poll_impl.get_poll_results import get_poll_results_impl
 
 poll_blueprint = Blueprint('poll', __name__)
 
@@ -41,34 +42,9 @@ def vote(poll_id):
 # Calculates the percentage of votes for each option.
 # Returns the results in a user-friendly format.
 # Get closed poll results
-# @poll_blueprint.route('/polls/<int:poll_id>/results', methods=['GET'])
-# def get_poll_results(poll_id):
-#     poll = Poll.query.get_or_404(poll_id)
-
-#     if not poll.closed:
-#         return jsonify({"error": "Poll results are not available yet"}), 403
-
-#     options = [
-#         {
-#             "id": option.id,
-#             "text": option.description,
-#             "vote_count": len(option.votes)
-#         }
-#         for option in poll.voting_options
-#     ]
-
-#     total_votes = sum([option['vote_count'] for option in options])
-#     results = [
-#         {**option, "percentage": (option["vote_count"] / total_votes) * 100 if total_votes > 0 else 0}
-#         for option in options
-#     ]
-
-#     return jsonify({
-#         "id": poll.id,
-#         "question": poll.question,
-#         "results": results,
-#         "total_votes": total_votes
-#     }), 200
+@poll_blueprint.route('/polls/<int:poll_id>/results', methods=['GET'])
+def get_poll_results(poll_id):
+    return get_poll_results_impl(poll_id)
 
 # # Allows the creator of a poll to close it, preventing further voting.
 # # Ensures that only the creator can close the poll.

@@ -90,6 +90,11 @@ class Poll(Base):
                 option.description = option_data.get('description')
         db.commit()
 
+    def get_votes_for_option(self, option_id):
+        """Check if a specific user has voted on this poll"""
+        # Assuming there's a Vote model with poll_id and user_id
+        return db.query(Vote).filter_by(poll_id=self.id, option_id=option_id).all()
+
     def has_user_voted(self, user_id):
         """Check if a specific user has voted on this poll"""
         # Assuming there's a Vote model with poll_id and user_id
