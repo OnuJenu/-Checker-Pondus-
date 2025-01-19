@@ -13,20 +13,20 @@ def client():
 
 def test_create_user(clean_db):
     # Test creating a new user
-    user = create_user('testuser', 'testpass')
+    user = create_user('testuser', 'newuser@example.com', 'testpass')
     assert user.username == 'testuser'
     assert user.password_hash is not None
 
 def test_authenticate_user(clean_db):
     # Test authenticating a user
-    create_user('testuser', 'testpass')
+    user = create_user('testuser', 'newuser@example.com', 'testpass')
     user = authenticate_user('testuser', 'testpass')
     assert user is not None
     assert user.username == 'testuser'
 
 def test_generate_tokens(clean_db):
     # Test token generation
-    user = create_user('testuser', 'testpass')
+    user = create_user('testuser', 'newuser@example.com', 'testpass')
     tokens = generate_tokens(user)
     assert 'access_token' in tokens
     assert 'refresh_token' in tokens
@@ -34,7 +34,7 @@ def test_generate_tokens(clean_db):
 
 def test_login_route(clean_db, client):
     # Test login route with valid credentials
-    create_user('testuser', 'testpass')
+    user = create_user('testuser', 'newuser@example.com', 'testpass')
     response = client.post('/login', json={
         'username': 'testuser',
         'password': 'testpass'
@@ -46,7 +46,7 @@ def test_login_route(clean_db, client):
 
 def test_login_route_invalid_credentials(clean_db, client):
     # Test login route with invalid credentials
-    create_user('testuser', 'testpass')
+    user = create_user('testuser', 'newuser@example.com', 'testpass')
     response = client.post('/login', json={
         'username': 'testuser',
         'password': 'wrongpass'

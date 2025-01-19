@@ -7,6 +7,8 @@ Attributes:
 - id: A unique identifier for each user, serving as the primary key.
 - username: A unique string representing the user's chosen name, used for identification and login.
 - email: A unique string representing the user's email address, used for communication and login.
+- oauth_provider: A string representing the OAuth provider for the user (if applicable).
+- oauth_id: A unique identifier from the OAuth provider (if applicable).
 - password_hash: A string storing the hashed version of the user's password for secure authentication.
 
 Methods:
@@ -26,7 +28,7 @@ class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     username = Column(String(150), unique=True)
-    email = Column(String(150), unique=True)
+    email = Column(String(150), unique=True)  # User's email address
     password_hash = Column(String(128))
     oauth_provider = Column(String(50))  # e.g., 'google', 'facebook'
     oauth_id = Column(String(150))       # Unique ID from OAuth provider

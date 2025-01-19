@@ -2,15 +2,16 @@ from app.config import settings
 from flask import redirect, url_for
 from authlib.integrations.flask_client import OAuth
 from app.models.user import User
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 
 oauth = OAuth()
 
-def create_user(username, password):
-    """Create a new user with the given username and password"""
+def create_user(username, email, password):
+    """Create a new user with the given username, email, and password"""
     return User.create_user(
         username=username,
-        password=password
+        email=email,
+        password=password,
     )
 
 google = oauth.register(
@@ -67,6 +68,7 @@ def authenticate_with_google(user_info):
     if not user:
         user = User.create_user(
             username=user_info['email'],
+            email=user_info['email'],
             oauth_id=user_info['id']
         )
     return user
@@ -95,6 +97,7 @@ def authenticate_with_twitter(user_info):
     if not user:
         user = User.create_user(
             username=user_info['email'],
+            email=user_info['email'],
             oauth_id=user_info['id']
         )
     return user
@@ -123,6 +126,7 @@ def authenticate_with_facebook(user_info):
     if not user:
         user = User.create_user(
             username=user_info['email'],
+            email=user_info['email'],
             oauth_id=user_info['id']
         )
     return user
