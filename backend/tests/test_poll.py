@@ -167,7 +167,7 @@ def test_create_poll_missing_media_fields(app):
     assert "must contain media_type and media_url" in str(exc_info.value)
 
 
-def test_get_polls(clean_db, test_db, app, authenticated_client, poll_fixture, test_image_data):
+def test_get_polls(clean_db, app, authenticated_client, poll_fixture, test_image_data):
     """Test getting a list of polls"""
     with app.app_context():
         # Verify database is empty

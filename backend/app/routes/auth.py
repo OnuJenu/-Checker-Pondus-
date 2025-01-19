@@ -7,7 +7,8 @@ from app.services.auth_service import (
     redirect_to_twitter_auth,
     handle_twitter_callback,
     redirect_to_facebook_auth,
-    handle_facebook_callback
+    handle_facebook_callback,
+    create_user
 )
 
 auth_blueprint = Blueprint('auth', __name__)
@@ -21,7 +22,25 @@ def login():
     if user:
         tokens = generate_tokens(user)
         return jsonify(tokens)
+    
     return jsonify({'error': 'Invalid credentials'}), 401
+
+@auth_blueprint.route('/register', methods=['POST'])
+def register():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    email = data.get('email')
+    
+    if not username or not password or not email:
+        return jsonify({'error': 'Username, password, and email are required'}), 400
+        
+    try:
+        user = create_user(username, password, email)
+        tokens = generate_tokens(user)
+        return jsonify(tokens)
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
 
 @auth_blueprint.route('/google/auth')
 def google_auth():

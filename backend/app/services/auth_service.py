@@ -5,6 +5,14 @@ from app.models.user import User
 from werkzeug.security import generate_password_hash, check_password_hash
 
 oauth = OAuth()
+
+def create_user(username, password):
+    """Create a new user with the given username and password"""
+    return User.create_user(
+        username=username,
+        password=password
+    )
+
 google = oauth.register(
     name='google',
     client_id=settings.GOOGLE_CLIENT_ID,

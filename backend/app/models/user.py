@@ -17,7 +17,6 @@ The User model ensures that each user has a unique username and email, and it se
 """
 
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import session
 from app.models import Base
 from app.databases.database import db
 
@@ -49,7 +48,7 @@ class User(Base):
         return check_password_hash(self.password_hash, password)
 
     @classmethod
-    def create_user(cls, username=None, email=None, password=None, oauth_provider=None, oauth_id=None):
+    def create_user(self, username=None, email=None, password=None, oauth_provider=None, oauth_id=None):
         """
         Create a new user with the given username, email, and password or OAuth details.
         
@@ -58,18 +57,18 @@ class User(Base):
         Raises:
             ValueError: If the username or email already exists.
         """
-        if session.query(cls).filter_by(username=username).first():
+        if db.query(self).filter_by(username=username).first():
             raise ValueError(f"Username '{username}' is already taken.")
-        if session.query(cls).filter_by(email=email).first():
+        if email and db.query(self).filter_by(email=email).first():
             raise ValueError(f"Email '{email}' is already registered.")
 
-        new_user = cls(username, email, password, oauth_provider, oauth_id)
-        session.add(new_user)
-        session.commit()
+        new_user = self(username, email, password, oauth_provider, oauth_id)
+        db.add(new_user)
+        db.commit()
         return new_user
 
     @classmethod
-    def get_user_by_id(cls, user_id):
+    def get_user_by_id(self, user_id):
         """
         Retrieve a user by their unique ID.
         
@@ -79,10 +78,10 @@ class User(Base):
         Returns:
             User: The user instance if found, otherwise None.
         """
-        return db.query(cls).get(user_id)
+        return db.query(self).get(user_id)
 
     @classmethod
-    def get_user_by_oauth(cls, provider, oauth_id):
+    def get_user_by_oauth(self, provider, oauth_id):
         """
         Retrieve a user by OAuth provider and OAuth ID.
         
@@ -93,7 +92,20 @@ class User(Base):
         Returns:
             User: The user instance if found, otherwise None.
         """
-        return session.query(cls).filter_by(oauth_provider=provider, oauth_id=oauth_id).first()
+        return db.query(self).filter_by(oauth_provider=provider, oauth_id=oauth_id).first()
+
+    @classmethod
+    def get_user_by_username(self, username):
+        """
+        Retrieve a user by their unique username.
+        
+        Args:
+            username (str): The username of the user to retrieve.
+        
+        Returns:
+            User: The user instance if found, otherwise None.
+        """
+        return db.query(self).filter_by(username=username).first()
 
     def __repr__(self):
         return f"<User {self.username}>"

@@ -3,3 +3,4 @@ __pycache__
 
 backend/instance/site.db
 backend/staff
+backend/.autogen-venv
